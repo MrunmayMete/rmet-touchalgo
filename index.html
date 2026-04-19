@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RMET Learning Hub</title>
+  <style>
+    :root {
+      --bg-start: #f7efe2;
+      --bg-end: #dce7f7;
+      --card: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6473;
+      --line: #d8deea;
+      --primary: #14532d;
+      --primary-hover: #166534;
+      --secondary: #1d4ed8;
+      --secondary-hover: #1e40af;
+      --disabled-bg: #e5e7eb;
+      --disabled-text: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 32%),
+        linear-gradient(135deg, var(--bg-start), var(--bg-end));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(760px, 100%);
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid rgba(216, 222, 234, 0.9);
+      border-radius: 28px;
+      box-shadow: 0 26px 60px rgba(31, 41, 55, 0.14);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 36px 32px 24px;
+      background:
+        linear-gradient(135deg, rgba(20, 83, 45, 0.08), rgba(29, 78, 216, 0.1)),
+        #fffdf8;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #166534;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .content {
+      padding: 28px 32px 32px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .path-card {
+      display: grid;
+      gap: 14px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+    }
+
+    .path-card h2 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    .path-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .meta.ready {
+      color: #166534;
+    }
+
+    .meta.locked {
+      color: #92400e;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 220px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+      box-shadow: 0 10px 22px rgba(31, 41, 55, 0.1);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn.secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+
+    .btn.secondary:hover {
+      background: var(--secondary-hover);
+    }
+
+    .btn.disabled,
+    .btn:disabled {
+      background: var(--disabled-bg);
+      color: var(--disabled-text);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 640px) {
+      .hero,
+      .content {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .btn {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">RMET Project Code</div>
+      <h1>Learning Path Launcher</h1>
+      <p>
+        Use either learning path from here. Both the individual learning flow and the peer
+        interaction flow are available directly from this page.
+      </p>
+    </section>
+
+    <section class="content">
+      <article class="path-card">
+        <div class="meta ready">Step 1 Ready</div>
+        <h2>Individual Learning Part</h2>
+        <p>
+          Watch, practise, join a room, complete the quiz, and finish the reflection flow.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="Individual_Learning_Part/IndividualLearningPart.html">
+            Open Individual Learning Part
+          </a>
+        </div>
+      </article>
+
+      <article class="path-card">
+        <div class="meta ready">Step 2 Ready</div>
+        <h2>Peer Interaction Part</h2>
+        <p>
+          Open the peer interaction flow directly whenever you want to use it.
+        </p>
+        <div class="actions">
+          <a class="btn secondary" href="Peer_Interaction_Part/PeerInteractionPart.html">
+            Open Peer Interaction Part
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

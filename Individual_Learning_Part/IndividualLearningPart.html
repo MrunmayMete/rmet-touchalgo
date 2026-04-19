@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETech Learning Platform</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Page Cards ── */
+    .page {
+      width: 100%;
+      max-width: 540px;
+      background: #fff;
+      border-radius: 24px;
+      padding: 44px 40px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.20);
+      animation: slideUp 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .page-wide { max-width: 820px; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 28px; font-weight: 800; color: #1e1b4b; margin-bottom: 6px; }
+    h2 { font-size: 22px; font-weight: 700; color: #1e1b4b; margin-bottom: 6px; }
+    h3 { font-size: 17px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    p  { font-size: 14px; color: #6b7280; line-height: 1.65; }
+
+    /* ── Step Badge ── */
+    .step-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #ede9fe; color: #5b21b6;
+      font-size: 12px; font-weight: 700;
+      padding: 5px 13px; border-radius: 20px;
+      margin-bottom: 18px; letter-spacing: .3px;
+    }
+    .step-badge .dot {
+      width: 7px; height: 7px;
+      background: #7c3aed; border-radius: 50%;
+    }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: #f3f4f6; margin: 22px 0; }
+
+    /* ── Inputs ── */
+    .input-group { margin-bottom: 15px; }
+    .input-group label {
+      display: block; font-size: 12px; font-weight: 700;
+      color: #374151; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .input-group input {
+      width: 100%; padding: 12px 15px;
+      border: 2px solid #e5e7eb; border-radius: 10px;
+      font-size: 15px; color: #111827;
+      transition: border-color 0.2s; outline: none;
+    }
+    .input-group input:focus { border-color: #4f46e5; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 22px; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; text-decoration: none; width: 100%;
+    }
+    .btn-primary  { background: #4f46e5; color: white; margin-top: 10px; }
+    .btn-primary:hover  { background: #4338ca; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,.35); }
+    .btn-secondary{ background: #f3f4f6; color: #374151; margin-top: 10px; }
+    .btn-secondary:hover{ background: #e5e7eb; }
+    .btn-success  { background: #10b981; color: white; margin-top: 16px; }
+    .btn-success:hover  { background: #059669; }
+    .btn-warning  { background: #f59e0b; color: white; margin-top: 16px; }
+    .btn-warning:hover  { background: #d97706; }
+    .btn-orange   { background: #f97316; color: white; margin-top: 12px; }
+    .btn-orange:hover   { background: #ea580c; }
+    .btn-outline  {
+      background: transparent; color: #4f46e5;
+      border: 2px solid #4f46e5; margin-top: 12px;
+    }
+    .btn-outline:hover  { background: #ede9fe; }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .btn-row .btn { margin-top: 0; }
+
+    /* ── Welcome Page ── */
+    .welcome-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 18px; display: flex; align-items: center;
+      justify-content: center; font-size: 34px; margin-bottom: 20px;
+    }
+    .feature-list { display: flex; flex-direction: column; gap: 10px; margin: 22px 0; }
+    .feature-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; background: #f9fafb; border-radius: 12px;
+    }
+    .feature-icon { font-size: 22px; flex-shrink: 0; }
+    .feature-text strong { display: block; font-size: 14px; color: #111827; }
+    .feature-text span   { font-size: 13px; color: #6b7280; }
+
+    /* ── Array Description Page ── */
+    .array-desc-box {
+      background: #f9fafb; border: 2px solid #e0e7ff;
+      border-radius: 14px; padding: 20px 22px; margin: 18px 0;
+    }
+    .array-desc-box p { font-size: 14px; color: #374151; line-height: 1.75; margin-bottom: 12px; }
+    .array-desc-box p:last-child { margin-bottom: 0; }
+    .array-desc-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #e0e7ff; color: #3730a3;
+      font-size: 12px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 14px; letter-spacing: .3px;
+    }
+
+    /* ── Video ── */
+    .video-wrap {
+      background: #1e1b4b; border-radius: 14px;
+      overflow: hidden; margin: 18px 0;
+      aspect-ratio: 16 / 9;
+    }
+    .video-wrap video,
+    .video-wrap iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+    }
+    .video-placeholder {
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: rgba(255,255,255,.5); gap: 10px; font-size: 14px;
+    }
+    .video-placeholder .play-icon { font-size: 52px; opacity: .5; }
+
+    /* ── Activity Card ── */
+    .activity-card {
+      border: 2px solid #e5e7eb; border-radius: 14px;
+      padding: 26px; margin: 18px 0; text-align: center;
+    }
+    .activity-card .act-icon { font-size: 46px; margin-bottom: 10px; }
+
+    /* ── Topic Buttons ── */
+    .topic-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+    .topicBtn {
+      width: 100%; padding: 18px 20px;
+      background: #f9fafb; border: 2px solid #e5e7eb;
+      border-radius: 12px; text-align: left;
+      font-size: 15px; font-weight: 600; color: #374151;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topicBtn:hover:not(:disabled) {
+      border-color: #4f46e5; background: #ede9fe;
+      color: #4f46e5; transform: translateX(4px);
+    }
+    .topicBtn:disabled { opacity: .4; cursor: not-allowed; }
+    .topicBtn.selected { background: #4f46e5; border-color: #4f46e5; color: white; }
+
+    /* ── Assigned Topic Badge ── */
+    .topic-badge {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white; padding: 20px 22px; border-radius: 14px; margin: 16px 0;
+    }
+    .topic-badge .badge-label {
+      font-size: 11px; opacity: .75;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .topic-badge .badge-name { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+    /* ── Quiz Page ── */
+    .quiz-header {
+      text-align: center; margin-bottom: 28px;
+      padding-bottom: 22px; border-bottom: 2px solid #f3f4f6;
+    }
+    .quiz-count { font-size: 13px; color: #9ca3af; margin-top: 6px; }
+
+    .question-card {
+      background: #f9fafb; border-radius: 14px; padding: 22px;
+      margin-bottom: 18px; border: 2px solid transparent;
+      transition: border-color .15s;
+    }
+    .question-card:focus-within { border-color: #c7d2fe; }
+    .q-num {
+      font-size: 11px; font-weight: 800; color: #4f46e5;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    }
+    .q-text {
+      font-size: 15px; font-weight: 600; color: #111827;
+      margin-bottom: 14px; line-height: 1.55;
+    }
+    .option-label {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 8px;
+      cursor: pointer; font-size: 14px; color: #374151;
+      transition: background .12s; margin-bottom: 6px;
+    }
+    .option-label:hover { background: #e0e7ff; }
+    .option-label input[type="radio"] {
+      accent-color: #4f46e5; width: 17px; height: 17px; flex-shrink: 0;
+    }
+
+    #submitQuizBtn {
+      width: 100%; padding: 15px; font-size: 16px; font-weight: 700;
+      background: #4f46e5; color: white; border: none;
+      border-radius: 12px; cursor: pointer; margin-top: 20px;
+      transition: background .2s;
+    }
+    #submitQuizBtn:hover { background: #4338ca; }
+
+    /* ── Quiz Results ── */
+    .quiz-results { text-align: center; }
+    .score-banner {
+      padding: 28px; border-radius: 16px; margin-bottom: 20px;
+    }
+    .score-banner.passed { background: linear-gradient(135deg,#d1fae5,#a7f3d0); border: 2px solid #6ee7b7; }
+    .score-banner.failed { background: linear-gradient(135deg,#fee2e2,#fecaca); border: 2px solid #fca5a5; }
+    .score-big   { font-size: 54px; font-weight: 800; color: #111827; }
+    .score-pct   { font-size: 15px; color: #4b5563; margin-top: 4px; font-weight: 600; }
+    .result-title{ font-size: 22px; font-weight: 700; margin: 14px 0 6px; }
+    .result-title.passed { color: #059669; }
+    .result-title.failed { color: #dc2626; }
+
+    /* Wrong answers */
+    .wrongs-section { text-align: left; margin-top: 28px; }
+    .wrongs-heading {
+      font-size: 14px; font-weight: 700; color: #374151;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .wrong-card {
+      background: #fff; border: 2px solid #fee2e2;
+      border-radius: 12px; padding: 16px; margin-bottom: 12px;
+    }
+    .wrong-card .wq-text {
+      font-size: 14px; font-weight: 600; color: #111827;
+      margin-bottom: 10px; line-height: 1.5;
+    }
+    .ans-tag {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 9px 13px; border-radius: 8px;
+      font-size: 13px; margin-bottom: 6px; font-weight: 500;
+    }
+    .ans-tag .tag-icon { flex-shrink: 0; margin-top: 1px; }
+    .ans-wrong   { background: #fee2e2; color: #b91c1c; }
+    .ans-correct { background: #d1fae5; color: #065f46; }
+    .ans-skipped { background: #fef3c7; color: #92400e; }
+
+    /* ── Discussion ── */
+    .disc-header {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+    }
+    .disc-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: linear-gradient(135deg,#4f46e5,#7c3aed);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 22px;
+    }
+    textarea {
+      width: 100%; padding: 14px 16px; margin-top: 14px;
+      border: 2px solid #e5e7eb; border-radius: 12px;
+      font-size: 14px; font-family: inherit; resize: vertical;
+      min-height: 130px; color: #111827; outline: none;
+      transition: border-color .2s;
+    }
+    textarea:focus { border-color: #4f46e5; }
+    .success-msg {
+      display: flex; align-items: center; gap: 10px;
+      background: #d1fae5; color: #065f46;
+      padding: 13px 16px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; margin-top: 12px;
+    }
+    .summaries-section { margin-top: 28px; padding-top: 22px; border-top: 2px solid #f3f4f6; }
+    .summary-card {
+      background: #f9fafb; border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .summary-card .s-name { font-size: 12px; font-weight: 700; color: #4f46e5; margin-bottom: 5px; }
+    .summary-card .s-text { font-size: 14px; color: #374151; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     WELCOME PAGE
+══════════════════════════════════════ -->
+<div class="page" id="welcomePage">
+  <div class="welcome-icon">📚</div>
+  <h1>Welcome to ETech</h1>
+  <p>An interactive platform for learning algorithms and data structures — watch, practice, and collaborate.</p>
+
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feature-icon">🎬</div>
+      <div class="feature-text">
+        <strong>Video Lessons</strong>
+        <span>Visual explanations for every topic</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-text">
+        <strong>Hands-on Activities</strong>
+        <span>Practise with interactive exercises</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-text">
+        <strong>Team Collaboration</strong>
+        <span>Teach each other and grow together</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="showPage('arrayDescPage')">
+    Start Learning →
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     ARRAY DESCRIPTION PAGE  (NEW)
+══════════════════════════════════════ -->
+<div class="page" id="arrayDescPage" style="display:none;">
+  <div class="step-badge"><div class="dot"></div>Introduction</div>
+  <h2>What is an Array?</h2>
+  <p style="margin-bottom:16px;">Before diving into algorithms, let's understand the key data structure they use.</p>
+
+  <div class="array-desc-box">
+    <div class="array-desc-label">📦 Technical Definition</div>
+    <p>An array is a basic data structure that stores a collection of elements (like numbers, characters, or objects) in a fixed-size, ordered sequence. Each element is stored at a specific position, called an <strong>index</strong>, which allows direct and efficient access.</p>
+  </div>
+
+  <div class="array-desc-box">
+    <div class="array-desc-label">💡 Simple Explanation</div>
+    <p>An array is simply a way to store multiple items together in an organized list. Imagine a row of boxes, where each box holds one value (like a number or a word), and each box has a position number. If you know the position, you can quickly find what's inside that box.</p>
+  </div>
+
+  <div class="array-desc-box">
+    <div class="array-desc-label">🎯 Why Arrays Matter</div>
+    <p>Arrays are important for understanding algorithms because most problem-solving in computing involves handling lists of data. For example, if you want to find the largest number, sort a list, or search for a specific item, you usually work with an array. Since arrays keep data in order and make it easy to access any item quickly, they help you understand how algorithms process information step by step. In simple terms, arrays are the basic "containers" that algorithms use to do their work efficiently.</p>
+  </div>
+
+  <button class="btn btn-primary" onclick="showPage('arrayVideoPage')">
+    Continue to Video →
+  </button>
+  <button class="btn btn-secondary" type="button" onclick="showPage('welcomePage')">
+    ← Back
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     ARRAY VIDEO PAGE
+══════════════════════════════════════ -->
+<div class="page" id="arrayVideoPage" style="display:none;">
+  <div class="step-badge"><div class="dot"></div>Step 1 of 3</div>
+  <h2>Introduction to Arrays</h2>
+  <p>Watch the video below before moving on to the activity.</p>
+
+  <div class="video-wrap">
+    <video id="arrayVideo" controls preload="metadata">
+      <source src="Learning_videos/array.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <button class="btn btn-primary" onclick="window.location.href='array.html'">
+    I've Watched the Video →
+  </button>
+    <button class="btn btn-secondary" type="button" onclick="showPage('arrayDescPage')">
+    ← Back
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     ARRAY ACTIVITY PAGE
+══════════════════════════════════════ -->
+<div class="page" id="arrayActivityPage" style="display:none;">
+  <div class="step-badge"><div class="dot"></div>Step 2 of 3</div>
+  <h2>Arrays Activity</h2>
+  <p>Open the interactive activity below. Complete it before joining your team room.</p>
+
+  <div class="activity-card">
+    <div class="act-icon">🎯</div>
+    <h3>Arrays Interactive Exercise</h3>
+    <p style="margin-top:8px;">Click to open the activity in a new tab.</p>
+    <!-- Replace # below with your Arrays activity URL when ready -->
+    <button class="btn btn-outline" onclick="window.open('#','_blank','noopener,noreferrer')">
+      Open Activity ↗
+    </button>
+  </div>
+
+  <button class="btn btn-primary" onclick="showPage('page1')">
+    I've Completed the Activity →
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 1 — CREATE / JOIN ROOM
+══════════════════════════════════════ -->
+<div class="page" id="page1" style="display:none;">
+  <div class="step-badge"><div class="dot"></div>Step 3 of 3</div>
+  <h2>Join Your Team</h2>
+  <p>Create a new room or join an existing one with your team name and password.</p>
+  <div class="divider"></div>
+
+  <div class="input-group">
+    <label>Team Name</label>
+    <input id="teamName" type="text" placeholder="e.g. Team Alpha">
+  </div>
+  <div class="input-group">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Enter room password">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="createRoom()">+ Create Room</button>
+    <button class="btn btn-secondary" onclick="joinRoom()">→ Join Room</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 2 — TOPIC SELECTION
+══════════════════════════════════════ -->
+<div class="page" id="page2" style="display:none;">
+  <h2>Choose Your Topic</h2>
+  <p>Each team member picks a different topic to master and teach the others.</p>
+
+  <div class="input-group" style="margin-top:20px;">
+    <label>Your Name</label>
+    <input id="userName" type="text" placeholder="Enter your full name">
+  </div>
+
+  <div class="topic-grid" id="topics"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 3 — ASSIGNED TOPIC
+══════════════════════════════════════ -->
+<div class="page" id="page3" style="display:none;">
+  <h2>Your Assignment</h2>
+
+  <div class="topic-badge">
+    <div class="badge-label">Your Topic</div>
+    <div class="badge-name" id="finalText"></div>
+  </div>
+
+  <div id="videoSection" style="display:none;">
+    <h3 style="margin-bottom:10px;">Learning Video</h3>
+    <div class="video-wrap">
+      <video
+        id="topicVideo"
+        title="Topic learning video"
+        controls
+        preload="metadata">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+
+  <button class="btn btn-outline" id="openActivityBtn" type="button"></button>
+
+  <button id="markDoneBtn" class="btn btn-orange" type="button" style="display:none;">
+    ✔ Mark Activity as Complete
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     DISCUSSION PAGE
+══════════════════════════════════════ -->
+<div class="page" id="discussionPage" style="display:none;">
+  <div class="disc-header">
+    <div class="disc-icon">🗣️</div>
+    <div>
+      <h2 style="margin-bottom:2px;">Group Discussion</h2>
+      <p style="font-size:13px;">Share what you learned with your team</p>
+    </div>
+  </div>
+
+  <p>Write a reflection on what you learned from your topic and from listening to your teammates.</p>
+
+  <textarea id="summaryText" placeholder="Share your key insights from the discussion..."></textarea>
+
+  <button id="submitSummaryBtn" class="btn btn-success">Submit Reflection</button>
+
+  <div id="submittedMessage" style="display:none;" class="success-msg">
+    ✅ Reflection submitted successfully!
+  </div>
+
+  <div class="summaries-section">
+    <h3>Team Reflections</h3>
+    <div id="summaryList" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 4 — QUIZ
+══════════════════════════════════════ -->
+<div class="page page-wide" id="quizPage" style="display:none;">
+  <div class="quiz-header">
+    <h2 id="quizTitle"></h2>
+    <div class="quiz-count" id="quizCount"></div>
+  </div>
+  <form id="quizForm"></form>
+  <button id="submitQuizBtn" type="button">Submit Quiz</button>
+</div>
+
+
+<script>
+// ── DOM refs ─────────────────────────────────────────────────────────
+const summaryText      = document.getElementById("summaryText");
+const submitSummaryBtn = document.getElementById("submitSummaryBtn");
+const submittedMessage = document.getElementById("submittedMessage");
+const summaryList      = document.getElementById("summaryList");
+const discussionPage   = document.getElementById("discussionPage");
+const markDoneBtn      = document.getElementById("markDoneBtn");
+const videoSection     = document.getElementById("videoSection");
+const topicVideo       = document.getElementById("topicVideo");
+const finalText        = document.getElementById("finalText");
+const INDIVIDUAL_COMPLETE_KEY = "individualLearningComplete";
+
+// ── Firebase ─────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDnqMUXWZzdPdVZXnUi8iy-T1TKMGV3wHw",
+  authDomain: "etech6010.firebaseapp.com",
+  projectId: "etech6010",
+  storageBucket: "etech6010.firebasestorage.app",
+  messagingSenderId: "451767011682",
+  appId: "1:451767011682:web:70f84807f20dab7f9bc43b",
+  measurementId: "G-WYL3ZF1TT2"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ── Globals ───────────────────────────────────────────────────────────
+let roomID        = null;
+let selectedTopic = null;
+
+const topics = {
+  "Merge Sort":             "https://corner-check-49119280.figma.site/",
+  "Bubble Sort":            "https://system-warm-10111700.figma.site/",
+  "Linear & Binary Search": "https://cling-pose-47604544.figma.site/",
+};
+
+const topicVideos = {
+  "Merge Sort":             "Learning_videos/merge-sort-algorithm.mp4",
+  "Bubble Sort":            "Learning_videos/bubble-sort.mp4",
+  "Linear & Binary Search": "Learning_videos/linear-search-vs-binary-search.mp4"
+};
+
+const quizzes = {
+
+  "Bubble Sort": [
+    { q: "After one pass, where does the largest element go?",
+      a: "c",
+      options: [
+        "Beginning",
+        "Middle",
+        "End",
+        "Random place"
+      ]
+    },
+    { q: "What does a \"swap\" mean?",
+      a: "b",
+      options: [
+        "Delete elements",
+        "Exchange positions",
+        "Duplicate elements",
+        "Hide elements"
+      ]
+    },
+    { q: "Bubble sort moves elements in which way?",
+      a: "b",
+      options: [
+        "Jumping randomly",
+        "Step-by-step through neighbors",
+        "Direct placement",
+        "Splitting into parts"
+      ]
+    },
+    { q: "Which direction does the comparison move in one pass?",
+      a: "b",
+      options: [
+        "Right to left",
+        "Left to right",
+        "Random",
+        "Both directions at once"
+      ]
+    },
+    { q: "After the first pass of Bubble Sort, which element is guaranteed to be in its final sorted position?",
+      a: "c",
+      options: [
+        "The smallest",
+        "The second element",
+        "The largest",
+        "The middle"
+      ]
+    },
+    { q: "If no swaps occur in a pass, what does it mean?",
+      a: "b",
+      options: [
+        "Error occurred",
+        "Array is sorted",
+        "Array reversed",
+        "Algorithm stops randomly"
+      ]
+    },
+    { q: "Why does bubble sort feel slow for large lists?",
+      a: "b",
+      options: [
+        "Uses memory",
+        "Many repeated comparisons",
+        "Deletes elements",
+        "Uses recursion"
+      ]
+    },
+    { q: "What pattern do you observe after each pass?",
+      a: "b",
+      options: [
+        "Smallest moves to end",
+        "Largest settles at end",
+        "Middle element fixed",
+        "Elements reverse"
+      ]
+    },
+    { q: "Why does the unsorted part become smaller?",
+      a: "b",
+      options: [
+        "Elements are removed",
+        "Sorted elements stay fixed",
+        "Array shrinks",
+        "Values change"
+      ]
+    },
+    { q: "Why does Bubble Sort's unsorted portion shrink with each pass?",
+      a: "b",
+      options: [
+        "Elements are deleted.",
+        "The largest element of that portion is correctly placed.",
+        "Elements are reversed.",
+        "The algorithm stops checking it."
+      ]
+    }
+  ],
+
+  "Merge Sort": [
+    { q: "What happens immediately after reaching single elements?",
+      a: "b",
+      options: [
+        "Sorting stops",
+        "Merging begins",
+        "Elements are removed",
+        "Order is reversed"
+      ]
+    },
+    { q: "Why is a single-element group considered sorted?",
+      a: "b",
+      options: [
+        "It is the smallest",
+        "It needs no comparison",
+        "It is ignored",
+        "It is always first"
+      ]
+    },
+    { q: "During merging, which value is placed first into the result?",
+      a: "b",
+      options: [
+        "Larger value",
+        "Smaller value",
+        "Random value",
+        "Last value"
+      ]
+    },
+    { q: "Merge sort repeatedly performs which two actions?",
+      a: "b",
+      options: [
+        "Swap and delete",
+        "Split and merge",
+        "Rotate and reverse",
+        "Skip and compare"
+      ]
+    },
+    { q: "Merge Sort divides the list until each part has how many elements?",
+      a: "b",
+      options: [
+        "Zero",
+        "One",
+        "Two",
+        "Half"
+      ]
+    },
+    { q: "Why is merge sort reliable for any input order?",
+      a: "b",
+      options: [
+        "It skips steps",
+        "It solves smaller parts correctly before combining",
+        "It avoids comparisons",
+        "It deletes elements"
+      ]
+    },
+    { q: "Why must sorted parts be merged again?",
+      a: "b",
+      options: [
+        "To remove duplicates",
+        "To form one fully sorted list",
+        "To reverse elements",
+        "To shuffle values"
+      ]
+    },
+    { q: "Why does merge sort need extra space during merging?",
+      a: "b",
+      options: [
+        "To skip steps",
+        "To store intermediate merged results",
+        "To reverse array",
+        "To delete elements"
+      ]
+    },
+    { q: "Why does merge sort still perform all steps even if the list is already sorted?",
+      a: "b",
+      options: [
+        "It detects errors",
+        "It always follows the full split-and-merge process",
+        "It skips merging",
+        "It deletes elements"
+      ]
+    },
+    { q: "Why is merging essential in Merge Sort?",
+      a: "b",
+      options: [
+        "To check for errors.",
+        "To form one fully sorted list.",
+        "To delete unnecessary elements.",
+        "To reverse the list order."
+      ]
+    }
+  ],
+
+  "Linear & Binary Search": [
+    { q: "What happens when the target equals the middle element in binary search?",
+      a: "b",
+      options: [
+        "Search restarts",
+        "Search stops immediately",
+        "Search continues left",
+        "Search continues right"
+      ]
+    },
+    { q: "Binary search reduces the search space by:",
+      a: "b",
+      options: [
+        "One element",
+        "Half each step",
+        "Two elements",
+        "All elements"
+      ]
+    },
+    { q: "Linear search stops when:",
+      a: "b",
+      options: [
+        "Half list is checked",
+        "Target is found or list ends",
+        "Middle is reached",
+        "List is sorted"
+      ]
+    },
+    { q: "Binary search mainly uses which comparison?",
+      a: "b",
+      options: [
+        "Equality only",
+        "Order comparison (less/greater)",
+        "Random comparison",
+        "Swapping comparison"
+      ]
+    },
+    { q: "If the target is greater than the middle element in binary search, which portion is searched next?",
+      a: "c",
+      options: [
+        "The entire original list",
+        "The left half",
+        "The right half",
+        "The search stops immediately"
+      ]
+    },
+    { q: "If the target is smaller than the middle element in binary search, what happens next?",
+      a: "b",
+      options: [
+        "Search right half",
+        "Search left half",
+        "Restart search",
+        "Stop immediately"
+      ]
+    },
+    { q: "Why can linear search be slow for large lists?",
+      a: "b",
+      options: [
+        "It skips elements",
+        "It may need to check every element",
+        "It divides the list",
+        "It sorts first"
+      ]
+    },
+    { q: "Why does binary search stop when the search range becomes empty?",
+      a: "b",
+      options: [
+        "Target is found",
+        "No elements remain to check",
+        "List is reversed",
+        "Middle changes"
+      ]
+    },
+    { q: "Why can't binary search work correctly on unsorted data?",
+      a: "b",
+      options: [
+        "It deletes elements",
+        "It cannot decide direction without order",
+        "It checks all elements",
+        "It swaps elements"
+      ]
+    },
+    { q: "Which search method requires a sorted list?",
+      a: "b",
+      options: [
+        "Linear Search",
+        "Binary Search",
+        "Both A and B",
+        "Neither A nor B"
+      ]
+    }
+  ]
+
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════════════════════════════════════
+const ALL_PAGES = [
+  'welcomePage','arrayDescPage','arrayVideoPage','arrayActivityPage',
+  'page1','page2','page3','quizPage','discussionPage'
+];
+
+function showPage(id) {
+  ALL_PAGES.forEach(p => {
+    const el = document.getElementById(p);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  if (target) target.style.display = 'block';
+}
+
+function showPageFromHash() {
+  const pageId = window.location.hash.slice(1);
+  showPage(ALL_PAGES.includes(pageId) ? pageId : 'welcomePage');
+}
+
+showPageFromHash();
+window.addEventListener('hashchange', showPageFromHash);
+document.getElementById("quizForm").addEventListener("submit", event => {
+  event.preventDefault();
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// CREATE / JOIN ROOM  (logic unchanged)
+// ══════════════════════════════════════════════════════════════════════
+function createRoom() { setupRoom(true);  }
+function joinRoom()   { setupRoom(false); }
+
+function setupRoom(create) {
+  const name = document.getElementById("teamName").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  if (!name || !pass) return alert("Enter team + password");
+
+  roomID = name + "_" + pass;
+  if (create) {
+    db.ref("rooms/" + roomID).set({ selections: {} });
+  }
+  openTopicPage();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PAGE 2 — TOPIC SELECTION  (logic unchanged)
+// ══════════════════════════════════════════════════════════════════════
+function openTopicPage() {
+  showPage('page2');
+  renderTopicButtons();
+  db.ref("rooms/" + roomID + "/selections").on("value", updateButtons);
+}
+
+function renderTopicButtons() {
+  let html = "";
+  Object.keys(topics).forEach(t => {
+    html += `
+      <button class="topicBtn" id="btn_${t}" onclick="chooseTopic('${t}')">
+        <span>${t}</span>
+        <span>→</span>
+      </button>
+    `;
+  });
+  document.getElementById("topics").innerHTML = html;
+}
+
+function updateButtons(snapshot) {
+  const used = snapshot.val() || {};
+  Object.keys(topics).forEach(topic => {
+    const btn = document.getElementById("btn_" + topic);
+    if (btn) {
+      btn.disabled = Object.values(used).includes(topic);
+      if (selectedTopic === topic) btn.classList.add("selected");
+    }
+  });
+}
+
+function chooseTopic(topic) {
+  const name = document.getElementById("userName").value.trim();
+  if (!name) return alert("Enter your name first");
+  db.ref("rooms/" + roomID + "/selections/" + name).set(topic);
+  selectedTopic = topic;
+  goToFinalPage();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PAGE 3 — ASSIGNED TOPIC  (logic unchanged)
+// ══════════════════════════════════════════════════════════════════════
+function goToFinalPage() {
+  showPage('page3');
+
+  finalText.innerText = selectedTopic;
+
+  const btn = document.getElementById("openActivityBtn");
+  btn.innerText = "Open " + selectedTopic + " Activity ↗";
+  btn.onclick = () => window.open(topics[selectedTopic], "_blank", "noopener,noreferrer");
+
+  videoSection.style.display = "block";
+  topicVideo.src = topicVideos[selectedTopic];
+  topicVideo.load();
+  markDoneBtn.style.display = "block";
+}
+
+markDoneBtn.onclick = () => {
+  showPage('quizPage');
+  loadQuiz();
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// QUIZ  (logic unchanged — 80% threshold; shows wrong answers in UI)
+// ══════════════════════════════════════════════════════════════════════
+function loadQuiz() {
+  document.getElementById("quizTitle").innerText = selectedTopic + " Quiz";
+  document.getElementById("quizCount").innerText = quizzes[selectedTopic].length + " questions";
+
+  const form = document.getElementById("quizForm");
+  form.innerHTML = "";
+
+  quizzes[selectedTopic].forEach((q, i) => {
+    form.innerHTML += `
+      <div class="question-card">
+        <div class="q-num">Question ${i + 1}</div>
+        <div class="q-text">${q.q}</div>
+        ${q.options.map((opt, idx) => `
+          <label class="option-label">
+            <input type="radio" name="q${i}" value="${String.fromCharCode(97 + idx)}" required>
+            ${opt}
+          </label>
+        `).join("")}
+      </div>
+    `;
+  });
+
+  // Replace button to clear old listeners
+  const oldBtn = document.getElementById("submitQuizBtn");
+  const newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.style.display = "block";
+
+  newBtn.addEventListener("click", () => {
+    const questions = quizzes[selectedTopic];
+    const firstUnansweredIndex = questions.findIndex((_, i) => {
+      return !document.querySelector(`input[name="q${i}"]:checked`);
+    });
+
+    if (firstUnansweredIndex !== -1) {
+      alert(`Please answer question ${firstUnansweredIndex + 1} before submitting.`);
+      document.querySelector(`input[name="q${firstUnansweredIndex}"]`).focus();
+      return;
+    }
+
+    let score = 0;
+    const results = [];
+
+    questions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      const isCorrect = selected && selected.value === q.a;
+      if (isCorrect) score++;
+      results.push({
+        question: q.q,
+        options: q.options,
+        correctAnswer: q.a,
+        selectedAnswer: selected ? selected.value : null,
+        isCorrect
+      });
+    });
+
+    const percent = (score / questions.length) * 100;
+    showQuizResults(results, score, questions.length, percent);
+  });
+}
+
+function showQuizResults(results, score, total, percent) {
+  const passed = percent >= 80;
+  document.getElementById("submitQuizBtn").style.display = "none";
+
+  const optLetters = ['a','b','c','d'];
+  const wrongItems = results.filter(r => !r.isCorrect);
+
+  let wrongHTML = '';
+  if (wrongItems.length > 0) {
+    wrongHTML = `
+      <div class="wrongs-section">
+        <div class="wrongs-heading">📋 Review ${wrongItems.length} incorrect answer${wrongItems.length > 1 ? 's' : ''}</div>
+        ${wrongItems.map(r => {
+          const cIdx = optLetters.indexOf(r.correctAnswer);
+          const sIdx = r.selectedAnswer ? optLetters.indexOf(r.selectedAnswer) : -1;
+          return `
+            <div class="wrong-card">
+              <div class="wq-text">${r.question}</div>
+              ${sIdx >= 0
+                ? `<div class="ans-tag ans-wrong"><span class="tag-icon">✗</span> Your answer: ${r.options[sIdx]}</div>`
+                : `<div class="ans-tag ans-skipped"><span class="tag-icon">—</span> Not answered</div>`
+              }
+              <div class="ans-tag ans-correct"><span class="tag-icon">✓</span> Correct answer: ${r.options[cIdx]}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } else {
+    wrongHTML = `<div class="ans-tag ans-correct" style="justify-content:center; margin-top:12px;"><span>✓</span>&nbsp;Perfect score — all answers correct!</div>`;
+  }
+
+  document.getElementById("quizForm").innerHTML = `
+    <div class="quiz-results">
+      <div class="score-banner ${passed ? 'passed' : 'failed'}">
+        <div class="score-big">${score} / ${total}</div>
+        <div class="score-pct">${Math.round(percent)}% — ${passed ? 'Passed ✓' : 'Not passed yet'}</div>
+      </div>
+      <div class="result-title ${passed ? 'passed' : 'failed'}">
+        ${passed ? '🎉 Excellent Work!' : '📚 Keep Practising!'}
+      </div>
+      <p>${passed
+        ? 'You passed the quiz. Continue to the group discussion.'
+        : 'You need at least 80% to continue. Review the activity and try again.'
+      }</p>
+      ${wrongHTML}
+      ${passed
+        ? `<button class="btn btn-success" type="button" onclick="goToDiscussion()">Continue to Discussion →</button>`
+        : `<button class="btn btn-warning" type="button" onclick="retryFromQuiz()">↩ Retry Activity</button>`
+      }
+    </div>
+  `;
+}
+
+function goToDiscussion() {
+  showPage('discussionPage');
+  loadSummaries();
+}
+
+function retryFromQuiz() {
+  if (!selectedTopic) {
+    showPage('page2');
+    return;
+  }
+  goToFinalPage();
+}
+
+function finishIndividualLearning() {
+  localStorage.setItem(INDIVIDUAL_COMPLETE_KEY, "true");
+  setTimeout(() => {
+    window.location.href = "../index.html?individualComplete=1";
+  }, 1200);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DISCUSSION  (logic unchanged)
+// ══════════════════════════════════════════════════════════════════════
+submitSummaryBtn.addEventListener("click", () => {
+  const text = summaryText.value.trim();
+  const user = document.getElementById("userName").value.trim();
+  if (!text) return alert("Please write something before submitting.");
+
+  db.ref(`rooms/${roomID}/summaries/${user}`).set(text)
+    .then(() => {
+      summaryText.disabled = true;
+      submitSummaryBtn.disabled = true;
+      submittedMessage.style.display = "flex";
+      submittedMessage.textContent = "✅ Reflection submitted successfully! Returning to the home page...";
+      loadSummaries();
+      finishIndividualLearning();
+    });
+});
+
+function loadSummaries() {
+  if (!roomID) return;
+  summaryList.innerHTML = "<em style='color:#9ca3af; font-size:14px;'>Loading...</em>";
+  db.ref(`rooms/${roomID}/summaries`).on("value", snapshot => {
+    const data = snapshot.val() || {};
+    summaryList.innerHTML = "";
+    if (Object.keys(data).length === 0) {
+      summaryList.innerHTML = "<p style='color:#9ca3af; font-size:14px;'>No reflections yet. Be the first!</p>";
+      return;
+    }
+    Object.entries(data).forEach(([name, text]) => {
+      summaryList.innerHTML += `
+        <div class="summary-card">
+          <div class="s-name">${name}</div>
+          <div class="s-text">${text}</div>
+        </div>
+      `;
+    });
+  });
+}
+</script>
+</body>
+</html>
